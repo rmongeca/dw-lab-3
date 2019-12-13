@@ -1,0 +1,129 @@
+CREATE TABLE stores (
+  id INTEGER,
+  district INTEGER,
+  city INTEGER,
+  region INTEGER
+) PCTFREE 0 ENABLE ROW MOVEMENT;
+-- Id is candidate key
+
+CREATE TABLE products (
+  id INTEGER,
+  line INTEGER,
+  class INTEGER,
+  family INTEGER
+) PCTFREE 0 ENABLE ROW MOVEMENT;
+-- Id is candidate key
+
+CREATE TABLE minutes (
+  id INTEGER,
+  hour INTEGER,
+  day INTEGER,
+  month INTEGER
+) PCTFREE 0 ENABLE ROW MOVEMENT;
+-- Id is candidate key
+
+CREATE TABLE sales (
+  timeId INTEGER,
+  storeId INTEGER,
+  productId INTEGER,
+  income FLOAT
+) PCTFREE 0 ENABLE ROW MOVEMENT;
+-- All three IDs should conform a candidate key
+
+DECLARE
+  i INTEGER;
+  maxStores CONSTANT INTEGER := 100;
+  maxProducts CONSTANT INTEGER := 10000;
+  maxTime CONSTANT INTEGER := 100000;
+  maxSales CONSTANT INTEGER := 300000;
+BEGIN
+DBMS_RANDOM.seed(0);
+-- Insertions in stores
+FOR i IN 1..(maxStores) LOOP
+  INSERT INTO stores(id, district, city, region) VALUES (i, (i-1)/3+1, (i-1)/30+1, (i-1)/90+1);
+  END LOOP;
+-- Insertions in products
+FOR i IN 1..(maxProducts) LOOP
+  INSERT INTO products(id, line, class, family) VALUES (i, (i-1)/2+1, (i-1)/10+1, (i-1)/3000+1);
+  END LOOP;
+-- Insertions in hours
+FOR i IN 1..(maxTime) LOOP
+  INSERT INTO minutes(id, hour, day, month) VALUES (i, (i-1)/60+1, (i-1)/1440+1, (i-1)/43200+1);
+  END LOOP;   
+-- Insertions in sales
+FOR i IN 1..(maxSales) LOOP
+  INSERT INTO sales(timeId, storeId, productId, income) VALUES (
+    dbms_random.value(1,maxTime),
+    dbms_random.value(1,maxStores),
+    dbms_random.value(1,maxProducts),
+    dbms_random.value()*1000
+    );
+  END LOOP;
+END;
+
+COMMIT;
+
+ALTER TABLE stores SHRINK SPACE;
+ALTER TABLE products SHRINK SPACE;
+ALTER TABLE minutes SHRINK SPACE;
+ALTER TABLE sales SHRINK SPACE;
+
+------------------------------------------- Update Statistics ---------------------------
+DECLARE
+esquema VARCHAR2(100);
+CURSOR c IS SELECT TABLE_NAME FROM USER_TABLES;
+BEGIN
+SELECT '"'||sys_context('USERENV', 'CURRENT_SCHEMA')||'"' INTO esquema FROM dual;
+FOR taula IN c LOOP
+  DBMS_STATS.GATHER_TABLE_STATS( 
+    ownname => esquema, 
+    tabname => taula.table_name, 
+    estimate_percent => NULL,
+    method_opt =>'FOR ALL COLUMNS SIZE REPEAT',
+    granularity => 'GLOBAL',
+    cascade => TRUE
+    );
+  END LOOP;
+END;
+
+---------------------------- To check the real costs -------------------------
+CREATE TABLE measure (id INTEGER, weight FLOAT, i FLOAT, f FLOAT);
+DECLARE 
+i0 INTEGER;
+i1 INTEGER;
+i2 INTEGER;
+r INTEGER;
+BEGIN
+select value INTO i0 from v$statname c, v$sesstat a where a.statistic# = c.statistic# and sys_context('USERENV','SID') = a.sid and c.name in ('consistent gets');
+  
+SELECT MAX(LENGTH(a||b)) INTO r FROM (SELECT day AS a, AVG(income) AS b
+FROM sales
+  JOIN stores ON sales.storeID=stores.id
+  JOIN products ON sales.productID=products.id
+  JOIN minutes ON sales.timeID=minutes.id
+WHERE region = 1 
+  AND day BETWEEN 20 AND 60
+  AND family =4
+GROUP BY day
+);
+
+select value INTO i1 from v$statname c, v$sesstat a where a.statistic# = c.statistic# and sys_context('USERENV','SID') = a.sid and c.name in ('consistent gets');
+
+SELECT MAX(LENGTH(a||b)) INTO r FROM (SELECT region AS a, AVG(income) AS b
+FROM sales
+  JOIN stores ON sales.storeID=stores.id
+  JOIN minutes ON sales.timeID=minutes.id
+WHERE region=1
+  AND hour=1
+GROUP BY region
+);
+
+select value INTO i2 from v$statname c, v$sesstat a where a.statistic# = c.statistic# and sys_context('USERENV','SID') = a.sid and c.name in ('consistent gets');
+
+INSERT INTO measure (id,weight,i,f) VALUES (1,0.8,i0,i1);
+INSERT INTO measure (id,weight,i,f) VALUES (2,0.2,i1,i2);
+END;
+
+SELECT SUM((f-i)*weight) FROM measure;
+DROP TABLE measure PURGE;
+
