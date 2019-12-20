@@ -5,6 +5,8 @@ DECLARE
   k INTEGER;
   nextDate DATE;
   nextMonth varchar2(6);
+  manufacturer varchar2(6);
+  model varchar2(25);
   maxPeople CONSTANT INTEGER := 100;  
   maxTemporal CONSTANT INTEGER := 5000;   
   l_start_date DATE := DATE'2004-01-01';
@@ -12,8 +14,11 @@ DECLARE
   type aircraftarray is varray(20) of varchar2(6);
   aircrafts CONSTANT aircraftarray := aircraftarray('XY-WTR', 'XY-VWK', 'XY-OKG','XY-HNS','XY-QLY','XY-XTT','XY-QXN','XY-JJQ','XY-ZSE','XY-XVI','XY-HXO','XY-IOL','XY-WBH','XY-EYQ','XY-OSF','XY-KKF','XY-ZHR','XY-HCI','XY-XPV','XY-VYU'); 
    
-  type modelarray is varray(10) of varchar2(25);
-  models CONSTANT modelarray := modelarray('767','777','747','A340','A330','A321','A330neo','A320neo family','737','A350 XWB');
+  type modelBoeingarray is varray(4) of varchar2(25);
+  modelsBoeing CONSTANT modelBoeingarray := modelBoeingarray('767','777','747','737');
+ 
+  type modelAirbusarray is varray(6) of varchar2(25);
+  modelsAirbus CONSTANT modelAirbusarray := modelAirbusarray('A340','A330','A321','A330neo','A320neo family','A350 XWB');
  
   type manufacturerarray is varray(2) of varchar2(6);
   manufacturers CONSTANT manufacturerarray := manufacturerarray('Boeing','Airbus');
@@ -29,8 +34,13 @@ DBMS_RANDOM.seed(0);
 
 -- Insertions in AircraftDimentsion
 FOR i IN 1..(aircrafts.count) LOOP
-  INSERT INTO AIRCRAFTDIMENSION(ID, MODEL, MANUFACTURER) VALUES (aircrafts(i), models(dbms_random.value(1,10)), manufacturers(dbms_random.value(1,2)));
-  END LOOP;
+  manufacturer := manufacturers(dbms_random.value(1,2));
+  IF (manufacturer = 'Airbus') THEN
+  INSERT INTO AIRCRAFTDIMENSION(ID, MODEL, MANUFACTURER) VALUES (aircrafts(i), modelsAirbus(dbms_random.value(1,6)), manufacturer);
+  ELSIF (manufacturer = 'Boeing') THEN 
+  INSERT INTO AIRCRAFTDIMENSION(ID, MODEL, MANUFACTURER) VALUES (aircrafts(i), modelsBoeing(dbms_random.value(1,4)), manufacturer);
+  END IF;
+ END LOOP;
  
  -- Insertions in PeopleDimension
 FOR i IN 1..(maxPeople) LOOP
@@ -39,25 +49,25 @@ FOR i IN 1..(maxPeople) LOOP
  
 
  -- Insertions in TemporalDimensions and Months
- nextMonth :=  CONCAT(EXTRACT(MONTH FROM l_start_date), EXTRACT(YEAR FROM l_start_date));
+ nextMonth :=  CONCAT(LPAD(EXTRACT(MONTH FROM l_start_date),2,'0'), LPAD(EXTRACT(YEAR FROM l_start_date),4,'0'));
  INSERT INTO MONTHS(ID,Y) VALUES (nextMonth, SUBSTR(nextMonth,LENGTH(nextMonth)-3,4));
  FOR i IN 1..maxTemporal LOOP  
   nextDate := l_start_date + i;    
-  IF CONCAT(EXTRACT(MONTH FROM nextDate), EXTRACT(YEAR FROM nextDate)) <> nextMonth THEN 
-      nextMonth :=  CONCAT(EXTRACT(MONTH FROM nextDate), EXTRACT(YEAR FROM nextDate));
+  IF CONCAT(LPAD(EXTRACT(MONTH FROM nextDate),2,'0'), LPAD(EXTRACT(YEAR FROM nextDate),4,'0')) <> nextMonth THEN 
+      nextMonth :=  CONCAT(LPAD(EXTRACT(MONTH FROM nextDate),2,'0'), LPAD(EXTRACT(YEAR FROM nextDate),4,'0'));
 	  INSERT INTO MONTHS(ID,Y) VALUES (nextMonth, SUBSTR(nextMonth,LENGTH(nextMonth)-3,4));
   END IF; 
   INSERT INTO TEMPORALDIMENSION(ID, MONTHID) VALUES (nextDate, nextMonth); 
  END LOOP;
   
 -- Insertions in LogBookReporting
- nextMonth :=  CONCAT(EXTRACT(MONTH FROM l_start_date), EXTRACT(YEAR FROM l_start_date));
+ nextMonth :=  CONCAT(LPAD(EXTRACT(MONTH FROM l_start_date),2,'0'), LPAD(EXTRACT(YEAR FROM l_start_date),4,'0'));
  FOR i IN 1..aircrafts.count LOOP
    FOR k IN 1..maxPeople LOOP
 	 FOR j IN 1..maxTemporal LOOP
 	     nextDate := l_start_date + j;
-	     IF CONCAT(EXTRACT(MONTH FROM nextDate), EXTRACT(YEAR FROM nextDate)) <> nextMonth THEN 
-		    nextMonth :=  CONCAT(EXTRACT(MONTH FROM nextDate), EXTRACT(YEAR FROM nextDate));	
+	     IF CONCAT(LPAD(EXTRACT(MONTH FROM nextDate),2,'0'), LPAD(EXTRACT(YEAR FROM nextDate),4,'0')) <> nextMonth THEN 
+		    nextMonth :=  CONCAT(LPAD(EXTRACT(MONTH FROM nextDate),2,'0'), LPAD(EXTRACT(YEAR FROM nextDate),4,'0'));	
 		 ELSE CONTINUE;
 		 END IF;		 
 		  INSERT INTO LOGBOOKREPORTING(AIRCRAFTID, MONTHID, PERSONID, COUNTER) VALUES (
@@ -85,7 +95,9 @@ FOR i IN 1..aircrafts.count LOOP
 	    CAST(dbms_random.value(1,5) AS INT));		 
 	 END LOOP;
 END LOOP;
- 
+
+UPDATE PEOPLEDIMENSION SET airport=null WHERE ROLE='P';
+
 END;
 
 COMMIT;
