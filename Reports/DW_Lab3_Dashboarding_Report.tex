@@ -1,0 +1,42 @@
+\documentclass{article} %  default article class is limited to 12pt
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+
+
+%%%% one single A4 page, 2.5cm margins, font size 12, inline space 1.15
+\usepackage[left=2.5cm,top=0.5cm,right=2.5cm,bottom=1.5cm,bindingoffset=0.5cm]{geometry}
+\renewcommand{\baselinestretch}{1.15}
+
+\usepackage{titlesec}
+\titleformat{\section}{\bf}{\thesection.}{1em}{}
+\titleformat{\subsection}{\bf}{\thesubsection.}{0.9em}{}
+
+
+\title{%
+    Data Warehousing: Lab 3 Dashboarding \\
+    \large Dashboarding}
+\author{Ricard Monge Calvo, Vicent Perez Gregori}
+\date{January 2020}
+
+\begin{document}
+
+\maketitle
+
+The aim of the project is to create a Dashboard to visualize a set of business Key Performance Indicators (\textit{KPIs}) on the \textbf{ACME-Flying} use case.\\
+
+In our Dashboard design and the following discussion, we assume the the measures and structure provided in the \textit{Mondrian XML schema} is correct and can be accessed correctly through the Pentaho Business Analytics visualization tools. We set the schema as a Datasource in the aforementioned tool and use it to configure the selectors and charts of the dashboard.\\
+
+Due to the limitations of the visualization tool, we were not able to modify the scales of the axis and format the axis labels and plot visual details. However, the considered charts can be filtered interactively using the selectors and the different measures in a chart can be toggled on and off by clicking the legend items.\\
+
+For our dashboard, we separate for each group of similar KPIs a section with a selector and a chart displaying the measures.\\
+
+With regards to the first section of monthly \textbf{Flyinghours (FH)} and \textbf{Flyingcycles (FC)} for a given aircraft model, since we want to be able to follow trends and identify changes and peaks through time, in this case months, we choose to display the measures by month in a line chart. We plot both measures in the same plot to visualize possible correlations between their trens, although their scales are not the same. Ideally, we could two vertical axis, one the left for the FC measure and one right for the FH measure, with different scales in order to better compare the measures' trends.\\
+
+The second section displays the \textbf{ADOSS} and \textbf{ADOSU} measures per year filtered by aircraft, by it's ID code. In this case we chose to display a bar chart as we wanted to be able to identify differences among both measures over time. Having each measure bar side-by-side per year we can easily compare them. In addition, we can also compare measures of different years to follow their changes.\\
+
+Thirdly, we plot in a line chart the measures of \textbf{RRh}, \textbf{RRc}, \textbf{PRRh}, \textbf{PRRc}, \textbf{MRRh} and \textbf{MRRc} in order to follow trends and peaks, and compare the variations of the different measures. In addition, by having the pilot and maintenance RRh/c measures in the same plot we can visually see how their ratios compare with the general ones, giving a deeper perspective. In this case we would not need a second axis as the scales are similar.\\
+
+Finally, in order to visualize \textbf{MRRh} and \textbf{MRRc} per aircraft model filtered per aircraft of the reporting person we decide to create a pie chart, so that one can easily visualize the ratio that each model amounts to.\\
+
+\end{document}

@@ -7,8 +7,8 @@
 	<Dimension name="Aircraft" foreignKey="AIRCRAFTID">
 		<Hierarchy hasAll="true" allMemberName="All Aircrafts" primaryKey="ID">
 		<Table name="AIRCRAFTDIMENSION"/>
-			<Level name="AircraftManufacturer" column="MANUFACTURER" uniqueMembers="true"/>
-			<Level name="AircraftModel" column="MODEL" uniqueMembers="true" />
+			<Level name="AircraftManufacturer" column="MANUFACTURER" uniqueMembers="false"/>
+			<Level name="AircraftModel" column="MODEL" uniqueMembers="false" />
 			<Level name="AircraftID" column="ID" uniqueMembers="true"  />					
 		</Hierarchy>
 	</Dimension>
@@ -16,7 +16,7 @@
 	<Dimension name="Month"  foreignKey="MONTHID">
 		<Hierarchy hasAll="true" allMemberName="All Months"  primaryKey="ID">
 		<Table name="MONTHS"/>
-			<Level name="Year" column="Y"  uniqueMembers="true"/>
+			<Level name="Year" column="Y"  uniqueMembers="false"/>
 			<Level name="Month" column="ID"  uniqueMembers="true" />			
 		</Hierarchy>
 	</Dimension>
@@ -24,12 +24,12 @@
 	<Dimension name="Personnel" foreignKey="PERSONID">
 		<Hierarchy name="Person-Role" hasAll="true" allMemberName="All Persons-Role" primaryKey="ID">
 		<Table name="PEOPLEDIMENSION"/>			
-			<Level name="PersonRole" column="ROLE"  uniqueMembers="true"  />
+			<Level name="PersonRole" column="ROLE"  uniqueMembers="false"  />
 			<Level name="PersonID" column="ID" uniqueMembers="true"  />						
 		</Hierarchy>
 		<Hierarchy name="Person-Airport" hasAll="true" allMemberName="All Persons-Airport" primaryKey="ID">
 		<Table name="PEOPLEDIMENSION"/>
-			<Level name="PersonAirport" column="AIRPORT"  uniqueMembers="true"/>
+			<Level name="PersonAirport" column="AIRPORT"  uniqueMembers="false"/>
 			<Level name="PersonID" column="ID" uniqueMembers="true"  />						
 		</Hierarchy>		
 	</Dimension>
