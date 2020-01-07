@@ -86,13 +86,43 @@ WHERE T.model = '737'
 -- Alternative without subquery
 SELECT f.monthID,
     SUM(f.COUNTER)/SUM(f.FLIGHTCYCLES) RRc, SUM(f.COUNTER)/SUM(f.FLIGHTHOURS) RRh,
-    SUM(f.PIREP)/SUM(f.FLIGHTCYCLES) PRRc, SUM(f.PIREP)/SUM(f.FLIGHTHOURS) PRRh,
-    SUM(f.MAREP)/SUM(f.FLIGHTCYCLES) MRRc, SUM(f.MAREP)/SUM(f.FLIGHTHOURS) MRRh
+    SUM(f.PIREP)/SUM(f.FLIGHTCYCLES) PRRc,  SUM(f.PIREP)/SUM(f.FLIGHTHOURS) PRRh,
+    SUM(f.MAREP)/SUM(f.FLIGHTCYCLES) MRRc,  SUM(f.MAREP)/SUM(f.FLIGHTHOURS) MRRh
 FROM AircraftDimension d1, FACTS_DRILLACCROSS f
 WHERE f.aircraftID = d1.ID
     AND d1.model = '737'
 GROUP BY f.monthID
 ORDER BY f.monthID
+-- Alternative without view
+SELECT
+    T_AIR.monthID,
+    SUM(T_LOGS.CNT)/  SUM(T_AIR.FC) RRc,   SUM(T_LOGS.CNT)/  SUM(T_AIR.FH) RRh,
+    SUM(T_LOGS.PIREP)/SUM(T_AIR.FC) PRRc,  SUM(T_LOGS.PIREP)/SUM(T_AIR.FH) PRRh,
+    SUM(T_LOGS.MAREP)/SUM(T_AIR.FC) MRRc,  SUM(T_LOGS.MAREP)/SUM(T_AIR.FH) MRRh
+FROM (
+        SELECT t.monthID, SUM(f.flightHours) FH, SUM(f.flightCycles) FC
+        FROM AircraftDimension d, AircraftUtilization f, TEMPORALDIMENSION t
+        WHERE f.aircraftID = d.ID
+        	AND f.TIMEID = t.ID
+            AND d.model = '737'
+        GROUP BY t.monthID
+        ORDER BY t.monthID
+    ) T_AIR,
+    (
+        SELECT L.monthID,
+        	SUM(L.COUNTER) AS CNT,
+	        SUM(CASE WHEN p.role='P' THEN L.COUNTER ELSE 0 END) AS PIREP,
+	        SUM(CASE WHEN p.role='M' THEN L.COUNTER ELSE 0 END) AS MAREP
+        FROM LOGBOOKREPORTING L, PeopleDimension p, AircraftDimension d
+        WHERE L.aircraftID = d.ID
+            AND L.PERSONID = p.ID
+            AND d.model = '737'
+        GROUP BY L.monthID
+        ORDER BY L.monthID
+    ) T_LOGS
+WHERE T_AIR.monthID = T_LOGS.monthID
+GROUP BY T_AIR.monthID
+ORDER BY T_AIR.monthID 
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------
@@ -125,6 +155,31 @@ WHERE f.aircraftID = d1.ID
     AND d2.airport = 'BSL'
 GROUP BY d1.model
 ORDER BY d1.model
+-- Alternative without view
+SELECT
+    T_AIR.model,
+    SUM(T_LOGS.MAREP)/SUM(T_AIR.FC) MRRc,
+    SUM(T_LOGS.MAREP)/SUM(T_AIR.FH) MRRh
+FROM (
+        SELECT d.model, SUM(f.flightHours) FH, SUM(f.flightCycles) FC
+        FROM AircraftDimension d, AircraftUtilization f
+        WHERE f.aircraftID = d.ID
+        GROUP BY d.model
+        ORDER BY d.model
+    ) T_AIR,
+    (
+        SELECT d.model,
+        SUM(CASE WHEN P.role='M' THEN L.COUNTER ELSE 0 END) AS MAREP
+        FROM LOGBOOKREPORTING L, PeopleDimension P, AircraftDimension d
+        WHERE L.aircraftID = d.ID
+            AND L.PERSONID = P.ID
+            AND P.airport = 'BSL' 
+        GROUP BY d.model
+        ORDER BY d.model
+    ) T_LOGS
+WHERE T_AIR.model = T_LOGS.model
+GROUP BY T_AIR.model
+ORDER BY T_AIR.model
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------
