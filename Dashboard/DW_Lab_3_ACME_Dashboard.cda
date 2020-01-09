@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="AircraftModelQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="AircraftQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="AircraftModelLogsQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="PersonAirportQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="FhFcQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="AdossAdosuQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="RrrhRrrcQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="MrrhQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+      <Connection id="MrrcQuery" type="mondrian.jndi">
+         <Catalog>mondrian:/acme11D3J</Catalog>
+         <Jndi>oracle-team11D3J</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="AircraftModelQuery" id="AircraftModelQuery"
+               type="mdx">
+      <Name>AircraftModelQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Output indexes="1,0" mode="include"/>
+      <Parameters/>
+      <Query><![CDATA[with member [Measures].[Name] as '[Aircraft].CurrentMember.UniqueName' select TopCount( filter({Descendants([Aircraft].[All Aircrafts] ,[Aircraft].[AircraftModel])}, not isempty(([Aircraft].CurrentMember)) ) , 50) on ROWS, 
+ {[Measures].[Name]} on Columns 
+ from [acme11D3J]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="AircraftQuery" id="AircraftQuery" type="mdx">
+      <Name>AircraftQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Output indexes="1,0" mode="include"/>
+      <Parameters/>
+      <Query><![CDATA[with member [Measures].[Name] as '[Aircraft].CurrentMember.UniqueName' select TopCount( filter({Descendants([Aircraft].[All Aircrafts] ,[Aircraft].[AircraftID])}, not isempty(([Aircraft].CurrentMember)) ) , 50) on ROWS, 
+ {[Measures].[Name]} on Columns 
+ from [acme11D3J]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="AircraftModelLogsQuery" id="AircraftModelLogsQuery"
+               type="mdx">
+      <Name>AircraftModelLogsQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Output indexes="1,0" mode="include"/>
+      <Parameters/>
+      <Query><![CDATA[with member [Measures].[Name] as '[Aircraft].CurrentMember.UniqueName' select TopCount( filter({Descendants([Aircraft].[All Aircrafts] ,[Aircraft].[AircraftModel])}, not isempty(([Aircraft].CurrentMember)) ) , 50) on ROWS, 
+ {[Measures].[Name]} on Columns 
+ from [acme11D3J]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="PersonAirportQuery" id="PersonAirportQuery"
+               type="mdx">
+      <Name>PersonAirportQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Output indexes="1,0" mode="include"/>
+      <Parameters/>
+      <Query><![CDATA[with member [Measures].[Name] as '[Personnel.Person-Airport].CurrentMember.UniqueName' select TopCount( filter({Descendants([Personnel.Person-Airport].[All Persons-Airport] ,[Personnel.Person-Airport].[PersonAirport])}, not isempty(([Personnel.Person-Airport].CurrentMember)) ) , 50) on ROWS, 
+ {[Measures].[Name]} on Columns 
+ from [acme11D3J]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="FhFcQuery" id="FhFcQuery" type="mdx">
+      <Name>FhFcQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Aircraft].[All Aircrafts]" name="AircraftModelParameter"
+                    type="String"/>
+      </Parameters>
+      <Query><![CDATA[select NON EMPTY({Descendants([Month].[All Months] ,[Month].[Month])}) on ROWS, 
+ NON EMPTY({[Measures].[FH] , [Measures].[FC]}) on Columns 
+ from [acme11D3J]
+ where (${AircraftModelParameter})]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="AdossAdosuQuery" id="AdossAdosuQuery" type="mdx">
+      <Name>AdossAdosuQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Aircraft].[All Aircrafts]" name="AircraftParameter" type="String"/>
+      </Parameters>
+      <Query><![CDATA[select NON EMPTY({Descendants([Month].[All Months] ,[Month].[Year])}) on ROWS, 
+ NON EMPTY({[Measures].[ADOSS] , [Measures].[ADOSU]}) on Columns 
+ from [acme11D3J]
+ where (${AircraftParameter})]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="RrrhRrrcQuery" id="RrrhRrrcQuery" type="mdx">
+      <Name>RrrhRrrcQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Aircraft].[All Aircrafts]" name="AircraftModelLogsParameter"
+                    type="String"/>
+      </Parameters>
+      <Query><![CDATA[select NON EMPTY({Descendants([Month].[All Months] ,[Month].[Month])}) on ROWS, 
+ NON EMPTY({[Measures].[RRh] , [Measures].[RRc] , [Measures].[PRRh] , [Measures].[PRRc] , [Measures].[MRRh] , [Measures].[MRRc]}) on Columns 
+ from [acme11D3J]
+ where (${AircraftModelLogsParameter})]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="MrrhQuery" id="MrrhQuery" type="mdx">
+      <Name>MrrhQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Personnel.Person-Airport].[All Persons-Airport]"
+                    name="PersonAirportParameter"
+                    type="String"/>
+      </Parameters>
+      <Query><![CDATA[select NON EMPTY({Descendants([Aircraft].[All Aircrafts] ,[Aircraft].[AircraftModel])}) on ROWS, 
+ NON EMPTY({[Measures].[MRRh]}) on Columns 
+ from [acme11D3J]
+ where (${PersonAirportParameter})]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="MrrcQuery" id="MrrcQuery" type="mdx">
+      <Name>MrrcQuery</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="[Personnel.Person-Airport].[All Persons-Airport]"
+                    name="PersonAirportParameter"
+                    type="String"/>
+      </Parameters>
+      <Query><![CDATA[select NON EMPTY({Descendants([Aircraft].[All Aircrafts] ,[Aircraft].[AircraftModel])}) on ROWS, 
+ NON EMPTY({[Measures].[MRRc]}) on Columns 
+ from [acme11D3J]
+ where (${PersonAirportParameter})]]></Query>
+   </DataAccess>
+</CDADescriptor>

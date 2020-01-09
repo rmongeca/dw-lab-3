@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdf><title>ACME-Flying Dashboard</title><description>Dashboard for the ACME-Flying use case with the previously specified schema and data.</description><author></author><style>CleanRequire</style><rendererType>bootstrap</rendererType><require>true</require><widget>false</widget><widgetName></widgetName><widgetParameters></widgetParameters></cdf>
